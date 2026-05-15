@@ -1,0 +1,63 @@
+name: Bot Adsterra Otomatis
+
+on:
+  schedule:
+    # Berjalan setiap 30 menit secara otomatis
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Supaya bisa dijalankan manual juga
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Ambil Kode
+      uses: actions/checkout@v3
+
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install Browser Playwright
+      run: |
+        npm install playwright axios express cors
+        npx playwright install chromium --with-deps
+
+    - name: Jalankan Mesin Pencari Dolar
+      run: |
+        # Menggunakan node untuk menjalankan script scraper.js secara mandiri
+        node -e "
+        const { chromium } = require('playwright');
+        const axios = require('axios');
+
+        (async () => {
+          const targetUrl = 'https://nandihardiansyah-collawb.github.io/portal-belajar/';
+          const jumlahKunjungan = 10;
+          
+          console.log('🚀 MEMULAI MISI OTOMATIS...');
+          
+          for (let i = 1; i <= jumlahKunjungan; i++) {
+            const browser = await chromium.launch({ headless: true });
+            try {
+              const context = await browser.newContext();
+              const page = await context.newPage();
+              
+              // Membuka portal
+              await page.goto(targetUrl, { waitUntil: 'commit', timeout: 60000 });
+              console.log('✅ Sesi ' + i + ': Berhasil masuk portal');
+              
+              // Tunggu redirect 18 detik
+              await new Promise(r => setTimeout(r, 18000));
+              
+              // Nongkrong di Smartlink
+              await new Promise(r => setTimeout(r, 30000));
+              console.log('💰 Sesi ' + i + ': Dolar tercatat');
+            } catch (err) {
+              console.log('⚠️ Sesi ' + i + ': Gagal');
+            } finally {
+              await browser.close();
+            }
+          }
+        })();
+        "
