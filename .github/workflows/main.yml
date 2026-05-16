@@ -2,7 +2,7 @@ name: Bot Adsterra Otomatis
 
 on:
   schedule:
-    # Berjalan setiap 30 menit secara otomatis
+    # Berjalan setiap 10 menit secara otomatis
     - cron: '*/30 * * * *'
   workflow_dispatch: # Supaya bisa dijalankan manual juga
 
